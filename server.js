@@ -4,14 +4,14 @@ var HashMap = require('hashmap')
 
 var users = new HashMap();
 
-var baudRate = 1/1;
+var baudRate = 1/10;
 
 http.createServer(function (request, response) 
 {
    // Send the HTTP header 
    // HTTP Status: 200 : OK
    // Content Type: text/plain
-   
+   var replyString = "doesn't seem like you're asking for anything valid right now";
    if(request.method == "POST")
    {
 	   var body = "";
@@ -30,7 +30,7 @@ http.createServer(function (request, response)
 		   
 		   
 		   var command = body.toString();
-		   
+		   console.log("COMMAND" + command);
 		   command = command.split(",");
 		   //console.log(command[0])
 		   if(command[0] === "CONNECT")
@@ -43,6 +43,12 @@ http.createServer(function (request, response)
 				   users.set(command[1], [0, 0, 0, 0, 0, 0]);
 				   
 				   console.log("User: \"" + command[1] + "\" connected");
+				   replyString = "connection successful";
+			   }
+			   
+			   else
+			   {
+					replyString = "connection failed";
 			   }
 			   
 		   }
@@ -67,13 +73,18 @@ http.createServer(function (request, response)
 				   var yVel = currentValues[4];
 				   var zVel = currentValues[5];
 				   
-				   x += xVel * baudRate + (xAccel * Math.pow(baudRate, 2));
-				   y += yVel * baudRate + (yAccel * Math.pow(baudRate, 2));
-				   z += zVel * baudRate + (yAccel * Math.pow(baudRate, 2));
+				   //Apply previous velocity over previous step and current acceleration to position
+				   x += xVel * baudRate;// + (xAccel * Math.pow(baudRate, 2));
+				   y += yVel * baudRate;// + (yAccel * Math.pow(baudRate, 2));
+				   z += zVel * baudRate;// + (yAccel * Math.pow(baudRate, 2));
 				   
+				   //Update acceleration by current acceleration over previous time step
 				   xVel += xAccel * baudRate;
+				   xVel *= 0.9;
 				   yVel += yAccel * baudRate;
+				   yVel *= 0.9;
 				   zVel += zAccel * baudRate;
+				   zVel *= 0.9;
 				   
 				   var newCoords = [x, y, z, xVel, yVel, zVel];
 				   users.set(command[1], newCoords);
@@ -82,36 +93,16 @@ http.createServer(function (request, response)
 			   
 			   else{
 				   console.log("User \"" + command[1] + "\" not found!");
+				   replyString = "user not found";
 			   }
-			   
-
 		   }
 		   
 		   else
 		   {
 			   console.log("Undefined request: \"" + body + "\" received");
+			   replayString = "undefined request";
 		   }
-		   
-		   
-		   
-		  /* for(var i = 0; i < 4; i++)
-		   {
-			  // console.log(data[i]);
-			   
-			   var newFloat = 0;
-			   var byteArray = new Array(16);
-			   for(var j = 0; j < 8; j++)
-			   {
-				   var a = data[(8* i) + j];
-				   byteArray[j] = a;
-				   console.log(byteArray[j]);
-
-			   }
-			   //console.log('float' + i)
-			   //newFloat = byteArrayToLong(byteArray);
-			   //console.log(newFloat +'\n');
-		   }*/
-	   })
+	   });
 	   
 	   request.on("end", 
 		   function()
@@ -120,14 +111,53 @@ http.createServer(function (request, response)
 			   var post = qs.parse(body);
 			   console.log(post);
 		   }
-		)
+		);
    }
    
+   else if(request.method == "GET")
+   {
+	    var body = "";
+	    
+	   
+	    
+	    body += request.url;
+		
+		//console.log(body);
+		var command = body.toString();
+	   
+		if(command === "/DOWNLOAD")
+		{
+		   replyString = "";
+		   var keys = users.keys();
+		   
+		   if(keys.length > 0)
+		   {
+			   for(var i = 0; i < keys.length; i++)
+			   {
+				   var singleUserData = users.get(keys[i]);
+				   replyString += keys[i] + "," + singleUserData[0] + "," + singleUserData[1] + "," + singleUserData[2] + ",";
+			   }
+			}
+			
+			else
+			{
+				replyString = "No users connected";
+			}
+		   
+		   
+		}
+		
+		else{
+			console.log("PARSE FAILURE");
+		}
+   }
+
    
-   response.writeHead(200, {'Content-Type': 'text/plain'});
+   response.writeHead(200, {'Content-Type': 'text/plain',
+	'Access-Control-Allow-Origin': '*'});
    
    // Send the response body as "Hello World"
-   response.end('Hey fag\n');
+   response.end(replyString);
    
    //console.log(request);
 }).listen(8081);
