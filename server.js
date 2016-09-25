@@ -3,6 +3,7 @@ var qs = require("querystring")
 var HashMap = require('hashmap')
 
 var users = new HashMap();
+var nameTags = new HashMap();
 
 var baudRate = 1/10;
 
@@ -30,9 +31,11 @@ http.createServer(function (request, response)
 		   
 		   
 		   var command = body.toString();
-		   console.log("COMMAND" + command);
+		   //console.log("COMMAND" + command);
 		   command = command.split(",");
 		   //console.log(command[0])
+		   
+		   //Process a connection command from a new Android User
 		   if(command[0] === "CONNECT")
 		   {
 			   console.log("Connection attempt from: \"" + command[0] + "\"");
@@ -40,7 +43,7 @@ http.createServer(function (request, response)
 			   
 			   if(command[1] !== "")
 			   {
-				   users.set(command[1], [0, 0, 0, 0, 0, 0]);
+				   users.set(command[1], [Math.random() % 20, Math.random() % 20, Math.random() % 20, 0, 0, 0]);
 				   
 				   console.log("User: \"" + command[1] + "\" connected");
 				   replyString = "connection successful";
@@ -53,6 +56,7 @@ http.createServer(function (request, response)
 			   
 		   }
 		   
+		   //Process an UPLOAD command. Should be and android uploading acceleration data
 		   else if(command[0] === "UPLOAD")
 		   {
 			   var ID = command[1];
@@ -62,7 +66,7 @@ http.createServer(function (request, response)
 			   
 			   if(users.has(command[1]))
 			   {
-				   console.log("Update user: \"" + command[1] + "\"");
+				   //console.log("Update user: \"" + command[1] + "\"");
 				   
 				   var currentValues = users.get(ID);
 				   
@@ -88,7 +92,7 @@ http.createServer(function (request, response)
 				   
 				   var newCoords = [x, y, z, xVel, yVel, zVel];
 				   users.set(command[1], newCoords);
-				   console.log("User \"" + ID + "\" Updated to\t x: " + x + " y: " + y + " z: " + z + "\n xVel: " + xVel + " yVel: " + yVel + " zVel: " + zVel + " \nxAccel: " + xAccel + " yAccel: " + yAccel + " zAccel " + zAccel + "\n=================================================\n");
+				   //console.log("User \"" + ID + "\" Updated to\t x: " + x + " y: " + y + " z: " + z + "\n xVel: " + xVel + " yVel: " + yVel + " zVel: " + zVel + " \nxAccel: " + xAccel + " yAccel: " + yAccel + " zAccel " + zAccel + "\n=================================================\n");
 			   }
 			   
 			   else{
@@ -97,6 +101,7 @@ http.createServer(function (request, response)
 			   }
 		   }
 		   
+		   //POST request was received but without a defined command in the first index.
 		   else
 		   {
 			   console.log("Undefined request: \"" + body + "\" received");
@@ -114,6 +119,7 @@ http.createServer(function (request, response)
 		);
    }
    
+   //Hndle get requests
    else if(request.method == "GET")
    {
 	    var body = "";
@@ -125,6 +131,8 @@ http.createServer(function (request, response)
 		//console.log(body);
 		var command = body.toString();
 	   
+	   
+	    //Handle a browser requesting the user list
 		if(command === "/DOWNLOAD")
 		{
 		   replyString = "";
@@ -137,6 +145,8 @@ http.createServer(function (request, response)
 				   var singleUserData = users.get(keys[i]);
 				   replyString += keys[i] + "," + singleUserData[0] + "," + singleUserData[1] + "," + singleUserData[2] + ",";
 			   }
+			   
+			   replyString = replyString.substring(0, replyString.length - 2);
 			}
 			
 			else
