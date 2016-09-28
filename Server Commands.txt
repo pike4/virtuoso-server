@@ -1,0 +1,44 @@
+Arguments will be seperated by spaces. Lists within each argument will be delimited by commas
+
+
+Incoming:
+A_REQUEST_CONNECT
+	Let the server know that the client wishes to connect. 
+	
+A_CONNECT Username Username Sensors_Available
+	Confirm that the user can connect and let the server know which sensors will be used
+	Username:
+		The username, used to display and hash the user server-side
+
+	Sensors_Available:
+		A comma seperated list of available sensors. The Android should simply not send an A_CONNECT if it doesn't have the required sensors, but it should let the server know which optional sensors it will be uploading
+		
+A_UPDATE_SETTINGS - settings
+	Inform the server that settings have changed
+	settings:
+		A comma-seperated list of colon-seperated key-value pairs defining the settings to change and their corresponding new values
+	
+
+A_UPLOAD - values
+	Upload sensor data to the server. 
+	
+
+
+Outgoing:
+
+SEND_CONNECT_REQUIREMENTS Required_Sensors(S1, S2, S3...) Other_Sensors Implementation_Data
+Reply to A_REQUEST_CONNECT with a list of sensors required to connect to the server
+	Required_Sensors:
+		A comma-seperated list of sensor types necessary to connect
+	
+	Other Sensors:
+		A comma-seperated list of sensor types that should be transmitted if available
+		
+SEND_IMPLEMENTATION Implementation_Data
+Reply to an A_CONNECT with the data required to implement a UI on the Android for the current configuration
+
+	Implementation data (optional):
+		A list of different data types to be sent to the server for initial setup. Used to construct a custom UI based on the server's preferences. This way the user can change a variety of settings based on the activity without hard-coding them Android side. A list of variable names, each of which is followed by "string" meaning that the user will type the value, or a delimited list of options specifying the values that can be selected from a dropdown
+	
+	Other data (optional):
+		A comma seperated list of other 

@@ -1,4 +1,7 @@
 var http = require("http");
+
+var net = require("net");
+
 var qs = require("querystring")
 var HashMap = require('hashmap')
 
@@ -6,6 +9,48 @@ var users = new HashMap();
 var nameTags = new HashMap();
 
 var baudRate = 1/10;
+
+var tcp = net.createServer(function(socket)
+{
+	socket.write('Hey fag\r\n');
+	socket.pipe(socket);	
+	
+	socket.on('data', function(data){
+		console.log(data.toString());
+		
+		data = data.toString().split(" ");
+		
+		var command = data[0];
+		console.log(command);
+		if(command === "A_REQUEST_CONNECT")
+		{
+			
+		}
+		
+		else if(command === "A_CONNECT")
+		{
+			
+		}
+		
+		else if(command === "A_UPDATE_SETTINGS")
+		{
+			
+		}
+		
+		else if(command === "A_UPLOAD")
+		{
+			
+		}
+		
+	});
+	
+})
+
+tcp.on('data', function(data){
+	console.log("Connected");
+});
+
+tcp.listen(8080);
 
 http.createServer(function (request, response) 
 {
