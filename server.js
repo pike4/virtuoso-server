@@ -4,44 +4,70 @@ var net = require("net");
 
 var qs = require("querystring")
 var HashMap = require('hashmap')
+var publicIp = require("public-ip");
+var serverStart = require("./startup_procedures.js");
 
 var users = new HashMap();
 var nameTags = new HashMap();
 
 var baudRate = 1/10;
+const PORT = 8081;
+
+var ipAddress = "";
+
+publicIp.v4().then(ipAddress => {
+    console.log("Server running at:" + ipAddress + ":" + PORT);
+});
+
+ipAddress = ipAddress.toString();
+
 
 var tcp = net.createServer(function(socket)
 {
-	socket.write('Hey fag\r\n');
+	socket.write('tcp connected\r\n');
 	socket.pipe(socket);	
 	
-	socket.on('data', function(data){
-		console.log(data.toString());
-		
-		data = data.toString().split(" ");
-		
-		var command = data[0];
-		console.log(command);
-		if(command === "A_REQUEST_CONNECT")
+	socket.on('data', function(data)
+	{
+		try
 		{
 			
-		}
-		
-		else if(command === "A_CONNECT")
-		{
 			
-		}
-		
-		else if(command === "A_UPDATE_SETTINGS")
-		{
+			var replyString = "Invalid request";
 			
-		}
-		
-		else if(command === "A_UPLOAD")
-		{
+			console.log(data.toString());
 			
+			data = data.toString().split(" ");
+			
+			var command = data[0];
+			console.log(command);
+			if(command === "A_REQUEST_CONNECT")
+			{
+				replyString = "SEND_CONNECT_REQUIREMENTS " + sensorString;
+				
+				
+			}
+			
+			else if(command === "A_CONNECT")
+			{
+				
+			}
+			
+			else if(command === "A_UPDATE_SETTINGS")
+			{
+				
+			}
+			
+			else if(command === "A_UPLOAD")
+			{
+				
+			}
 		}
 		
+		catch(err)
+		{
+			console.log(err.toString());
+		}
 	});
 	
 })
@@ -50,7 +76,16 @@ tcp.on('data', function(data){
 	console.log("Connected");
 });
 
+tcp.on('error', (err)=>{
+	console.log(err);
+});
+
 tcp.listen(8080);
+
+var outString = serverStart.defineSensorString();
+
+console.log("outString");
+console.log(outString);
 
 http.createServer(function (request, response) 
 {
@@ -224,7 +259,4 @@ byteArrayToLong = function(byteArray) {
         value = (value * 256) + byteArray[i];
     }
 }
-
-// Console will print the message
-console.log('Server running at http://127.0.0.1:8081/');
 
