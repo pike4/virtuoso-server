@@ -2,6 +2,8 @@ var http = require("http");
 
 var net = require("net");
 
+
+
 var qs = require("querystring")
 var HashMap = require('hashmap')
 var publicIp = require("public-ip");
@@ -14,9 +16,11 @@ var baudRate = 1/10;
 const PORT = 8081;
 
 var ipAddress = "";
+var localIP = "";
 
 publicIp.v4().then(ipAddress => {
-    console.log("Server running at:" + ipAddress + ":" + PORT);
+	localIP = serverStart.getAddress();
+    console.log("---------------------------------------------\n" + "Server running\n\n" + "Public Address - " + ipAddress + ":" + PORT + "\nLocal Address  - " + localIP +":" + PORT + "\n---------------------------------------------");
 });
 
 ipAddress = ipAddress.toString();
@@ -84,8 +88,6 @@ tcp.listen(8080);
 
 var outString = serverStart.defineSensorString();
 
-console.log("outString");
-console.log(outString);
 
 http.createServer(function (request, response) 
 {

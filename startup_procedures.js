@@ -1,4 +1,4 @@
-
+var os = require('os');
 var sensorString = "";
 
 /*
@@ -57,5 +57,24 @@ module.exports = {
 			}
 		}	
 		return sensorString;
+	},
+	
+	getAddress : function()
+	{
+		var ifaces = os.networkInterfaces();
+		var addresses = [];
+		for (var k in ifaces) 
+		{
+			for (var k2 in ifaces[k]) 
+			{
+				var address = ifaces[k][k2];
+				if (address.family === 'IPv4' && !address.internal) 
+				{
+					addresses.push(address.address);
+				}
+			}
+		}
+		
+		return addresses[0];
 	}
 }
