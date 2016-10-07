@@ -35,8 +35,6 @@ var tcp = net.createServer(function(socket)
 	{
 		try
 		{
-			
-			
 			var replyString = "Invalid request";
 			
 			console.log(data.toString());
@@ -47,9 +45,7 @@ var tcp = net.createServer(function(socket)
 			console.log(command);
 			if(command === "A_REQUEST_CONNECT")
 			{
-				replyString = "SEND_CONNECT_REQUIREMENTS " + sensorString;
-				
-				
+				replyString = "SEND_CONNECT_REQUIREMENTS " + sensorString;		
 			}
 			
 			else if(command === "A_CONNECT")
@@ -87,10 +83,10 @@ tcp.on('error', (err)=>{
 tcp.listen(8080);
 
 var outString = serverStart.defineSensorString();
-
+console.log(outString);
 
 http.createServer(function (request, response) 
-{
+{	
    // Send the HTTP header 
    // HTTP Status: 200 : OK
    // Content Type: text/plain
@@ -201,7 +197,7 @@ http.createServer(function (request, response)
 		);
    }
    
-   //Hndle get requests
+   //Handle get requests
    else if(request.method == "GET")
    {
 	    var body = "";
@@ -254,11 +250,42 @@ http.createServer(function (request, response)
    //console.log(request);
 }).listen(8081);
 
-
 byteArrayToLong = function(byteArray) {
     var value = 0;
     for ( var i = byteArray.length - 1; i >= 0; i--) {
         value = (value * 256) + byteArray[i];
     }
 }
+
+//User object
+function user(id)
+{
+	this.ID = id;
+	this.sensors = new HashMap();
+	this.implData = new HashMap();
+}
+
+//
+function sensor(sensorName, dataList, implData)
+{
+	this.name = sensorName;
+	this.data = dataList;
+	
+	//TODO: parse implementation string to map
+	this.implementationData = 0;
+}
+
+//Set up the user's sensor map given a list of sensors that will be recieved.
+//sensorlist is a string of the form SENSOR1:NUM_VALUES,SENSOR2:NUM_VALUES
+user.prototype.setSensors = function(sensorList){
+	//TODO: parse sensorList
+	var individualSensors = sensorList.split(",");
+	
+	for(var i = 0; i < individualSensors.length; i++)
+	{
+		var pair = individualSensors[i].split(":");
+		
+		sensors.set(pair[0], new Array(parseInt(pair[1])));
+	}
+};
 
